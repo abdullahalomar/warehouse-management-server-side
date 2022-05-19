@@ -8,7 +8,8 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middleware
 app.use(cors());
 app.use(express.json());
-
+// For parsing application/x-www-form-urlencoded
+// app.use(express.urlencoded({ extended: true }));
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2vmrg.mongodb.net/?retryWrites=true&w=majority`;
