@@ -26,6 +26,7 @@ async function run() {
             res.send(inventoryItems);
         });
 
+        // Manage Item
         app.get('/inventoryItem/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -33,21 +34,36 @@ async function run() {
             res.send(inventoryItem);
         });
 
-        //post
+        // Add New Item
         app.post('/inventoryItem', async (req, res) => {
             const newInventoryItem = req.body;
+            console.log(req.body);
             const result = await inventoryItemCollection.insertOne(newInventoryItem);
             res.send(result);
-        })
+        });
 
-        //Delete
+        // Delete to manage item
         app.delete('/inventoryItem/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await inventoryItemCollection.deleteOne(query);
             res.send(result);
-        })
+        });
 
+        // My Item
+        app.get('/myitem', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = inventoryItemCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.post('/myitem', async (req, res) => {
+            const item = req.body;
+            const result = await inventoryItemCollection.insertOne(item);
+            res.send(result);
+        });
     }
     finally {
         
