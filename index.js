@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -8,9 +9,22 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 //middleware
 app.use(cors());
 app.use(express.json());
-// For parsing application/x-www-form-urlencoded
-// app.use(express.urlencoded({ extended: true }));
 
+function verifyJWT (req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: 'unauthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: 'forbiden access' });
+        }
+        console.log('decoded', decoded);
+        req.decoded = decoded;
+        next();
+    })
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2vmrg.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -25,6 +39,15 @@ async function run() {
             const inventoryItems = await cursor.toArray();
             res.send(inventoryItems);
         });
+
+        // Auth Token
+        app.post('/login', async (req, res) => {
+            const user = req.body;
+            const Token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '2d'
+            });
+            res.send({Token})
+        })
 
         // Manage Item
         app.get('/inventoryItem/:id', async (req, res) => {
@@ -51,12 +74,18 @@ async function run() {
         });
 
         // My Item
-        app.get('/myitem', async (req, res) => {
+        app.get('/myitem', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
             const email = req.query.email;
-            const query = { email: email };
-            const cursor = inventoryItemCollection.find(query);
-            const result = await cursor.toArray();
-            res.send(result);
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = inventoryItemCollection.find(query);
+                const result = await cursor.toArray();
+                res.send(result);
+            }
+            else {
+                res.status(403).send({ message: 'forbiden access' });
+            }
         });
 
         app.post('/myitem', async (req, res) => {
@@ -64,6 +93,7 @@ async function run() {
             const result = await inventoryItemCollection.insertOne(item);
             res.send(result);
         });
+
         // update the quantity of product
         app.post('/updateQuantity', async (req, res) => {
             const item = req.body;
