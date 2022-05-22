@@ -64,6 +64,16 @@ async function run() {
             const result = await inventoryItemCollection.insertOne(item);
             res.send(result);
         });
+        // update the quantity of product
+        app.post('/updateQuantity', async (req, res) => {
+            const item = req.body;
+            const result = await inventoryItemCollection.updateOne({
+                _id: '628a27896525fef32983c6fc'
+            }, {
+                $inc : {quantity: 122}
+            });
+            res.send(result);
+        });
     }
     finally {
         
