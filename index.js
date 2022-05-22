@@ -95,12 +95,13 @@ async function run() {
         });
 
         // update the quantity of product
-        app.post('/updateQuantity', async (req, res) => {
+        app.post('/updateQuantity/:id', async (req, res) => {
+            const id = req.params.id;
             const item = req.body;
             const result = await inventoryItemCollection.updateOne({
-                _id: '628a27896525fef32983c6fc'
+                _id: id
             }, {
-                $inc : {quantity: 122}
+                $inc : {quantity: item.quantity}
             });
             res.send(result);
         });
