@@ -115,6 +115,10 @@ app.get('/', (req, res) => {
     res.send('Running Laptop Server')
 });
 
+app.get('/hero', (req, res) => {
+    res.send('Hero meets heroku');
+})
+
 app.listen(port, () => {
     console.log('listening to port', port);
 })
