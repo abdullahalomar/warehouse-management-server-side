@@ -99,9 +99,19 @@ async function run() {
             const id = req.params.id;
             const item = req.body;
             const result = await inventoryItemCollection.updateOne({
-                _id: id
+                _id: ObjectId(id)
             }, {
-                $inc : {quantity: item.quantity}
+                $inc : {quantity: +item.quantity}
+            });
+            res.send(result);
+        });
+
+        app.post('/decreaseQuantity/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await inventoryItemCollection.updateOne({
+                _id: ObjectId(id)
+            }, {
+                $inc : {quantity: -1}
             });
             res.send(result);
         });
