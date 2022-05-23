@@ -94,7 +94,7 @@ async function run() {
             res.send(result);
         });
 
-        // update the quantity of product
+        // increase quantity of product
         app.post('/updateQuantity/:id', async (req, res) => {
             const id = req.params.id;
             const item = req.body;
@@ -106,6 +106,7 @@ async function run() {
             res.send(result);
         });
 
+        // decrease quantity of product
         app.post('/decreaseQuantity/:id', async (req, res) => {
             const id = req.params.id;
             const result = await inventoryItemCollection.updateOne({
